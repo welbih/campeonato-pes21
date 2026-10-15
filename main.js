@@ -38,6 +38,7 @@ async function loadEditions(group) {
     }
     return {
       nome: `${number}º Campeonato da ${row.campeonato}`,
+      edicao: number,
       grupo: group,
       participante: row.participante.toLowerCase(),
       especial: Boolean(row.participante) && row.participante.toLowerCase() !== 'nenhum',
@@ -120,7 +121,7 @@ async function main() {
   `;
 
   // ===== EDIÇÕES =====
-  document.getElementById("editions").innerHTML = editions.map(e => `
+  const renderEdition = e => `
     <article class="edition${e.especial ? ' special' : ''}">
       <div class="top">
         <div class="ed-name">${escapeHTML(e.nome)}</div>
@@ -143,7 +144,20 @@ async function main() {
         </div>
       </div>
     </article>
-  `).join("");
+  `;
+  document.getElementById("editions").innerHTML = ['vila', 'tecno'].map(group => `
+    <section class="edition-group" aria-labelledby="editions-${group}">
+      <h3 class="edition-group-title ${group}" id="editions-${group}">${group === 'vila' ? 'Vila' : 'Tecno'}</h3>
+      <div class="edition-group-grid">
+        <div class="edition-trophy-slot">
+          ${group === 'vila'
+            ? '<img class="edition-trophy edition-trophy-vila" src="svg/trofeu-vila.svg" alt="Troféu do Campeonato da Vila">'
+            : '<img class="edition-trophy" src="img/trofeu-tecno.png" alt="Troféu do Campeonato da Tecno">'}
+        </div>
+        ${editions.filter(e => e.grupo === group).sort((a, b) => b.edicao - a.edicao).map(renderEdition).join('')}
+      </div>
+    </section>
+  `).join('');
 
   // ===== RANKING =====
   const views = {

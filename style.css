@@ -127,7 +127,44 @@
   }
 
   /* EDIÇÕES */
-  .editions{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+  .editions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+  .edition-group{min-width:0}
+  .edition-group-title{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.15em;margin-bottom:18px}
+  .edition-group-title.vila{color:var(--vila)}
+  .edition-group-title.tecno{color:var(--tecno)}
+  .edition-group-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+  .edition-trophy-slot{
+    grid-column:1 / -1;height:420px;display:flex;justify-content:center;align-items:center;
+  }
+  .edition-trophy{
+    display:block;width:300px;height:420px;max-width:100%;object-fit:contain;
+  }
+  .edition-trophy-vila{
+    animation:trophy-colors 18s steps(1,end) infinite;
+  }
+  @keyframes trophy-colors{
+    0%,100%{filter:brightness(0) saturate(100%) invert(32%) sepia(100%) saturate(3000%) hue-rotate(215deg) drop-shadow(0 0 18px #3273ff)}
+    16.666667%{filter:brightness(0) saturate(100%) invert(65%) sepia(100%) saturate(1800%) hue-rotate(90deg) drop-shadow(0 0 18px #19c37d)}
+    33.333333%{filter:brightness(0) invert(1) drop-shadow(0 0 18px #ffffff)}
+    50%{filter:brightness(0) saturate(100%) invert(24%) sepia(100%) saturate(5000%) hue-rotate(350deg) drop-shadow(0 0 18px #ff3030)}
+    66.666667%{filter:brightness(0) saturate(100%) invert(52%) sepia(94%) saturate(2200%) hue-rotate(300deg) drop-shadow(0 0 18px #ff69b4)}
+    83.333333%{filter:brightness(0) saturate(100%) invert(60%) sepia(100%) saturate(3000%) hue-rotate(360deg) drop-shadow(0 0 18px #ff8c00)}
+  }
+  .edition-group .edition{min-width:0;padding:20px 12px}
+  .edition-group .top{gap:8px;align-items:flex-start}
+  .edition-group .badge{padding:4px 6px;letter-spacing:.08em}
+  .edition-group .ed-name{font-size:.85rem;letter-spacing:.08em}
+  .edition-group .edition-special{gap:6px;padding:10px 5px;font-size:.6rem}
+  .edition-group .special-label{letter-spacing:.02em}
+  .edition-group .place{padding:12px 8px;gap:8px}
+  .edition-group .pname{overflow-wrap:anywhere}
+  @media (max-width:1000px){
+    .editions{grid-template-columns:1fr}
+  }
+  @media (max-width:540px){
+    .edition-group-grid{grid-template-columns:1fr}
+    .edition-group .edition-special{font-size:.75rem}
+  }
   .edition{
     border-radius:22px;padding:26px 22px 24px;position:relative;
     background:linear-gradient(160deg,#101c63 0%,#080f33 100%);
