@@ -160,9 +160,29 @@ async function main() {
   `).join('');
 
   // ===== RANKING =====
+  const confrontos = new Map();
+  const nomeGrupo = name => name.charAt(0).toUpperCase() + name.slice(1);
+  editions.filter(e => e.especial).forEach(e => {
+    const key = [e.grupo, e.participante].sort().join('-');
+    if (!confrontos.has(key)) {
+      confrontos.set(key, {
+        label: `${nomeGrupo(e.grupo)} vs ${nomeGrupo(e.participante)}`,
+        editions: []
+      });
+    }
+    confrontos.get(key).editions.push(e);
+  });
+  const specialViews = Object.fromEntries([...confrontos].map(([key, confronto]) => [
+    `confronto-${key}`, {
+      label: confronto.label,
+      rows: buildRanking(confronto.editions),
+      info: `Considera apenas as edições especiais de ${confronto.label}.`
+    }
+  ]));
   const views = {
     geral: { label: "Ranking Geral", rows: ranking,
              info: "Todas as edições somadas (Vila + Tecno)." },
+    ...specialViews,
     vila:  { label: "Só Vila", rows: buildRanking(editions.filter(e => e.grupo === "vila")),
              info: "Considera apenas os Campeonatos da Vila." },
     tecno: { label: "Só Tecno", rows: buildRanking(editions.filter(e => e.grupo === "tecno")),
@@ -188,10 +208,12 @@ async function main() {
       v.info + " Ordenado por títulos e depois por vices; empatados dividem a posição.";
     document.querySelectorAll("#tabs button").forEach(b =>
       b.classList.toggle("active", b.dataset.key === key));
+    document.querySelectorAll("#tabs button").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.key === key)));
   }
 
   document.getElementById("tabs").innerHTML = Object.entries(views).map(([k, v]) =>
-    `<button data-key="${k}">${v.label}</button>`).join("");
+    `<button data-key="${escapeHTML(k)}">${escapeHTML(v.label)}</button>`).join("");
   document.getElementById("tabs").addEventListener("click", ev => {
     const k = ev.target.dataset.key;
     if (k) renderRank(k);
