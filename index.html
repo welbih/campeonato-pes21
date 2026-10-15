@@ -144,6 +144,22 @@
     transition:transform .25s ease, box-shadow .25s ease;
   }
   .edition:hover{transform:translateY(-6px);box-shadow:0 28px 56px #000b,0 0 40px #1b3bff44}
+  .edition.special{
+    border-color:var(--gold);
+    background:linear-gradient(160deg,#30265d 0%,#10143a 100%);
+  }
+  .edition.special:hover{box-shadow:0 28px 56px #000b,0 0 32px #f5c54233}
+  .edition-special{
+    display:flex;flex-wrap:nowrap;gap:10px;align-items:center;white-space:nowrap;
+    margin-bottom:18px;padding:12px 14px;border-radius:12px;
+    background:#f5c54214;border:1px solid #f5c54244;
+    color:var(--silver);font-size:clamp(.65rem,2.2vw,.8rem);
+  }
+  .edition-special strong{color:var(--gold2);font-weight:700}
+  .special-label{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;
+    letter-spacing:.12em;color:var(--gold2);
+  }
   .edition .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
   .ed-name{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.15em;font-size:1rem}
   .badge{
@@ -297,147 +313,6 @@
   </footer>
 </main>
 
-<script>
-  // ===== DADOS =====
-  const editions = [
-    { nome: "1º Campeonato da Vila",  grupo: "vila",  campeao: "Sniper",  vice: "Aomine"  },
-    { nome: "2º Campeonato da Vila",  grupo: "vila",  campeao: "Caliton", vice: "Geilson" },
-    { nome: "1º Campeonato da Tecno", grupo: "tecno", campeao: "Sniper",  vice: "Geilson" }
-  ];
-
-  // ===== CÁLCULOS =====
-  const chave  = n => n;
-  const rotulo = p => [...p.apelidos].join(" / ");
-
-  function buildRanking(list){
-    const players = {};
-    list.forEach(e => {
-      const idx = editions.indexOf(e);
-      [["campeao","titulos"],["vice","vices"]].forEach(([key, field]) => {
-        const k = chave(e[key]);
-        players[k] ??= { nome:k, apelidos:new Set(), titulos:0, vices:0, primeira:idx, finais:0 };
-        players[k].apelidos.add(e[key]);
-        players[k][field]++;
-        players[k].finais++;
-      });
-    });
-    const sorted = Object.values(players).sort((a,b) =>
-      b.titulos - a.titulos || b.vices - a.vices || a.primeira - b.primeira
-    );
-    // posição com empate (mesmos títulos e vices = mesma posição)
-    sorted.forEach((p, i) => {
-      const first = sorted.findIndex(q => q.titulos === p.titulos && q.vices === p.vices);
-      p.pos = first + 1;
-    });
-    return sorted;
-  }
-
-  const ranking = buildRanking(editions);
-
-  const maxTit = Math.max(...ranking.map(p => p.titulos));
-  const maxVic = Math.max(...ranking.map(p => p.vices));
-  const maioresCampeoes = ranking.filter(p => p.titulos === maxTit);
-  const maioresVices    = ranking.filter(p => p.vices === maxVic);
-
-  const nomes = arr => arr.map(rotulo).join(" · ");
-  const tags  = arr => arr.map(p => `<span class="tag">${rotulo(p)}</span>`).join("");
-
-  // ===== DESTAQUES =====
-  const empateCampeao = maioresCampeoes.length > 1;
-  document.getElementById("highlights").innerHTML = `
-    <div class="hl gold">
-      <div class="label">Maior campeão${empateCampeao ? " (empate)" : ""}</div>
-      <div class="big">${empateCampeao ? maxTit + " título cada" : maioresCampeoes[0].nome}</div>
-      <div class="note">${empateCampeao
-        ? "Empate no topo da tabela de títulos. A briga está aberta!"
-        : maxTit + " títulos conquistados."}</div>
-      <div>${tags(maioresCampeoes)}</div>
-      <div class="icon">🏆</div>
-    </div>
-    <div class="hl silver">
-      <div class="label">Maior vice</div>
-      <div class="big">${nomes(maioresVices)}</div>
-      <div class="note">${maxVic} vice-campeonatos. Sempre na final, falta só o título!</div>
-      <div>${tags(maioresVices)}</div>
-      <div class="icon">🥈</div>
-    </div>
-    <div class="hl gold">
-      <div class="label">Campeões do torneio</div>
-      <div class="big">${ranking.filter(p=>p.titulos>0).length} campeões diferentes</div>
-      <div class="note">Em ${editions.length} edições, ${ranking.filter(p=>p.titulos>0).length} jogadores já levantaram a taça.</div>
-      <div>${tags(ranking.filter(p=>p.titulos>0))}</div>
-      <div class="icon">★</div>
-    </div>
-  `;
-
-  // ===== EDIÇÕES =====
-  document.getElementById("editions").innerHTML = editions.map(e => `
-    <article class="edition">
-      <div class="top">
-        <div class="ed-name">${e.nome}</div>
-        <span class="badge ${e.grupo}">${e.grupo === "vila" ? "Vila" : "Tecno"}</span>
-      </div>
-      <div class="final">
-        <div class="place first">
-          <div class="medal">1</div>
-          <div><div class="role">Campeão</div><div class="pname">${e.campeao}</div></div>
-        </div>
-        <div class="place second">
-          <div class="medal">2</div>
-          <div><div class="role">Vice-campeão</div><div class="pname">${e.vice}</div></div>
-        </div>
-      </div>
-    </article>
-  `).join("");
-
-  // ===== RANKING =====
-  const views = {
-    geral: { label: "Ranking Geral", rows: ranking,
-             info: "Todas as edições somadas (Vila + Tecno)." },
-    vila:  { label: "Só Vila", rows: buildRanking(editions.filter(e => e.grupo === "vila")),
-             info: "Considera apenas os Campeonatos da Vila." },
-    tecno: { label: "Só Tecno", rows: buildRanking(editions.filter(e => e.grupo === "tecno")),
-             info: "Considera apenas o Campeonato da Tecno." }
-  };
-
-  function renderRank(key){
-    const v = views[key];
-    document.getElementById("rank").innerHTML = v.rows.map(p => `
-      <div class="rank-card ${p.pos<=3 ? "top"+p.pos : ""}">
-        <div class="pos">${p.pos}</div>
-        <div>
-          <div class="rank-name">${rotulo(p)}</div>
-          <div class="rank-sub">${p.finais} ${p.finais>1 ? "finais disputadas" : "final disputada"}</div>
-        </div>
-        <div class="stats">
-          <div class="stat champ"><b>${p.titulos}</b><small>Títulos</small></div>
-          <div class="stat vice"><b>${p.vices}</b><small>Vices</small></div>
-        </div>
-      </div>
-    `).join("");
-    document.getElementById("legend").textContent =
-      v.info + " Ordenado por títulos e depois por vices; empatados dividem a posição.";
-    document.querySelectorAll("#tabs button").forEach(b =>
-      b.classList.toggle("active", b.dataset.key === key));
-  }
-
-  document.getElementById("tabs").innerHTML = Object.entries(views).map(([k, v]) =>
-    `<button data-key="${k}">${v.label}</button>`).join("");
-  document.getElementById("tabs").addEventListener("click", ev => {
-    const k = ev.target.dataset.key;
-    if (k) renderRank(k);
-  });
-  renderRank("geral");
-
-  // ===== NÚMEROS =====
-  const vilaEd  = editions.filter(e => e.grupo === "vila").length;
-  const tecnoEd = editions.filter(e => e.grupo === "tecno").length;
-  document.getElementById("counters").innerHTML = [
-    [editions.length, "Edições"],
-    [vilaEd, "Campeonatos da Vila"],
-    [tecnoEd, "Campeonato da Tecno"],
-    [ranking.length, "Finalistas"]
-  ].map(([n,l]) => `<div class="counter"><b>${n}</b><span>${l}</span></div>`).join("");
-</script>
+<script src="main.js" defer></script>
 </body>
 </html>
